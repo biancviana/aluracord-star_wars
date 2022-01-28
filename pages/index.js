@@ -1,40 +1,10 @@
 // Primeiro código React rodando.
+// Lembrete para mim mesma: dar um "npm run dev" pra subir o projeto.
 
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
+import React from 'react';
+import { useRouter } from 'next/router'
 import appConfig from '../config.json'
-
-function EstiloGlobal() {
-    return (
-      <style global jsx>{`
-
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          list-style: none;
-        }
-
-        body {
-          font-family: 'Open Sans', sans-serif;
-        }
-        /* App fit Height */ 
-        html, body, #__next {
-          min-height: 100vh;
-          display: flex;
-          flex: 1;
-        }
-        #__next {
-          flex: 1;
-        }
-        #__next > * {
-          flex: 1;
-        }
-        /* ./App fit Height */ 
-
-      `}</style>
-    );
-}
-
 
 //Outro componente React
 function Titulo(props){
@@ -48,7 +18,7 @@ function Titulo(props){
             ${Tag} {
                 color: ${appConfig.theme.colors.primary['010']};
                 font-size: 24px;
-				font-weight: 600;
+				        font-weight: 600;
             }
             `} </style>
         </>
@@ -56,13 +26,13 @@ function Titulo(props){
     );
 }
 
-// Componente React
+// Primeiro Componente React
 /* function HomePage() {
     // JSX
     return (
         <div>
             <EstiloGlobal />
-            <Titulo tag="h2">Bemaaa-vindo(a) ao lado negro da força!</Titulo>
+            <Titulo tag="h2">Bem-vindo(a) ao lado negro da força!</Titulo>
             <h2>Discord - Alura Wars</h2>
         </div> 
 
@@ -73,11 +43,12 @@ export default HomePage
 */
 
 export default function PaginaInicial() {
-    const username = 'biancviana';
+    //const username = 'biancviana';
+    const [username, setUsername] = React.useState('');
+    const roteamento = useRouter(); //gancho do React para usar o roteamento
   
     return (
       <>
-        <EstiloGlobal />
         <Box
           styleSheet={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -104,6 +75,16 @@ export default function PaginaInicial() {
             {/* Formulário */}
             <Box
               as="form"
+              //sempre que tiver uma submissão, eu faço algo (no caso, troco de página)
+              onSubmit={function (infosdoEvento){
+                infosdoEvento.preventDefault(); //"previna o carregamento, o default". Assim, temos controle de como que faz para ir para uma próxima página.
+                console.log('Alguém submeteu o form');
+                //Roteamento de páginas, o Next tem o recurso certo para fazer troca de páginas
+                roteamento.push('/chat');
+                
+                // window.location.href = "/chat" -jeito tradicional, com reload/refresh
+                
+              }}
               styleSheet={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -114,8 +95,31 @@ export default function PaginaInicial() {
                 {appConfig.name}
               <h4>"Que a força esteja com você"</h4>
               </Text>
-  
+
+
+            {/* <input type="text" 
+                    value={username} 
+                    onChange={function (event){
+                      console.log("Usuário digitou!", event.target.value)
+                      //Onde está o valor?
+                      const valor = event.target.value;
+                      //Trocar o valor da variável, através do React   
+                      setUsername(valor); // é esse setUsername que avisa ao React que precisa mudar cada um dos valores e qual pedaço da página tem que avisar.
+
+                  }}                    
+            /> */}
+              
               <TextField
+                placeholder="Digite seu usuário de padawan"
+                value={username}
+                onChange={function (event){
+                  console.log("Usuário digitou!", event.target.value)
+                  //Onde está o valor?
+                  const valor = event.target.value;
+                  //Trocar o valor da variável, através do React   
+                  setUsername(valor); // é esse setUsername que avisa ao React que precisa mudar cada um dos valores e qual pedaço da página tem que avisar.
+                }}
+
                 fullWidth
                 textFieldColors={{
                   neutral: {
@@ -126,10 +130,12 @@ export default function PaginaInicial() {
                   },
                 }}
               />
+              
               <Button
                 type='submit'
                 label='Entrar'
                 fullWidth
+                disabled={username < 3}
                 buttonColors={{
                   contrastColor: appConfig.theme.colors.neutrals["000"],
                   mainColor: appConfig.theme.colors.primary['111'],
@@ -162,18 +168,20 @@ export default function PaginaInicial() {
                   borderRadius: '50%',
                   marginBottom: '16px',
                 }}
-                src={`https://github.com/${username}.png`}
+                //src={`https://github.com/${username}.png`}
+                src={username == '' ? `https://octodex.github.com/images/octobiwan.jpg` : `https://github.com/${username}.png`}
               />
               <Text
                 variant="body4"
                 styleSheet={{
                   color: appConfig.theme.colors.neutrals[200],
                   backgroundColor: appConfig.theme.colors.neutrals[500],
-                  padding: '3px 10px',
+                  padding: '5px 12px',
                   borderRadius: '1000px'
                 }}
               >
                 {username}
+                
               </Text>
             </Box>
             {/* Photo Area */}
