@@ -165,6 +165,8 @@ function MessageList(props) {
                         <Box
                             styleSheet={{
                                 marginBottom: '8px',
+                                display: "flex",
+                                alignItems: "center"
                             }}
                         >
                             <Image
@@ -187,7 +189,7 @@ function MessageList(props) {
                             <Text
                                 styleSheet={{
                                     fontSize: '11px',
-                                    marginLeft: '1px',
+                                    marginLeft: '10px',
                                     color: appConfig.theme.colors.neutrals[100],
                                 }}
                                 tag="span"
