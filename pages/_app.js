@@ -36,7 +36,7 @@ export default function Customizacao ({ Component, pageProps}){
     return (
         <>
         <EstiloGlobal />
-        <Component {...pageProps} />        
+        <Component {...pageProps} />   
         </>
     );    
     

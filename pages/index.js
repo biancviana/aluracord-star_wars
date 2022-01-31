@@ -77,8 +77,10 @@ export default function PaginaInicial() {
               as="form"
               //sempre que tiver uma submissão, eu faço algo (no caso, troco de página)
               onSubmit={function (infosdoEvento){
-                infosdoEvento.preventDefault(); //"previna o carregamento, o default". Assim, temos controle de como que faz para ir para uma próxima página.
-                console.log('Alguém submeteu o form');
+                
+                //"previna o carregamento, o default". Assim, temos controle de como que faz para ir para uma próxima página.
+                infosdoEvento.preventDefault(); 
+                console.log('Alguém submeteu o form');                
                 //Roteamento de páginas, o Next tem o recurso certo para fazer troca de páginas
                 roteamento.push('/chat');
                 
@@ -110,7 +112,7 @@ export default function PaginaInicial() {
             /> */}
               
               <TextField
-                placeholder="Digite seu usuário de padawan"
+                placeholder="Digite seu usuário de padawan do GitHub"
                 value={username}
                 onChange={function (event){
                   console.log("Usuário digitou!", event.target.value)
