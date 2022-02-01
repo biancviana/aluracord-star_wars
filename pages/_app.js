@@ -1,5 +1,7 @@
 // Esse arquivo não cria uma página. Tudo o que a gente colocar aqui, vai ser carregado em todas as páginas. Em volta de todas as páginas.
 
+import Head from 'next/head';
+
 function EstiloGlobal() {
     return (
       <style global jsx>{`
@@ -36,10 +38,18 @@ export default function Customizacao ({ Component, pageProps}){
     return (
         <>
         <EstiloGlobal />
-        <Component {...pageProps} />   
+        <Component {...pageProps} />        
+        
+        <Head>
+          <meta charSet="utf-8" />
+          <link rel="icon" href='/favicon.png'/>
+          <title>AluraWars</title> 
+        </Head>
         </>
     );    
     
 }
+
+
 
 // No React, quando se instala alguma lib ou se quer algo genérico, é comum colocar/configurar dentro desse arquivo. No nosso caso, a conf vai ser de CSS.
