@@ -3,24 +3,57 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js'
+
+
+//se não tiver instalado, dar npm install @supabase/supabase-js no terminal
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZmp6enZybGNxbnlneHV1b2hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDQ0MzQyNTcsImV4cCI6MTk2MDAxMDI1N30.sh5CXFcHb9WCi3UsIJ0UDmfFkxMu2VCtGJnaPX_bKHc';
+const SUPABASE_URL = 'https://urfjzzvrlcqnygxuuoha.supabase.co';
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+
 
 export default function ChatPage() {
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]); 
+    
+    
+    //lidar com coisas que fogem do fluxo padrão, ou seja, execução. um efeito colateral, um extra. se o dado precisa vir de um servidor externo, precisa carregar mais, é fora desse fluxo.
+    React.useEffect(() => {
+        supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false})
+            .then(({ data }) => {
+                console.log('Dados da consulta:', data);
+                setListaDeMensagens(data);
+            });
+    }, []); //se a lista de mensagens mudar, observe essas mudanças e rode de novo. ou seja, a cada ENTER, é atualizado
+
 
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaDeMensagens.length + 1,
+            //id: listaDeMensagens.length + 1,
             de: 'biancviana',
             texto: novaMensagem,
         };
-        
-        // espalhar -> eu pego todos os itens que já estão dentro da lista e espalho todos dentro da lista nova (setListaDeMensagens)
-        setListaDeMensagens([
-            mensagem,
-            ...listaDeMensagens,
-        ]);
+
+        supabaseClient
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(({ data }) => {
+                // espalhar -> eu pego todos os itens que já estão dentro da lista e espalho todos dentro da lista nova (setListaDeMensagens)
+                setListaDeMensagens([
+                    data[0],
+                    ...listaDeMensagens,
+                ]);
+            });
+
         setMensagem('');
+
     }
 
     return (
@@ -180,10 +213,11 @@ function MessageList(props) {
                                     //alignItems: "left",
                                     
                                 }}
-                                src={`https://github.com/biancviana.png`}
+                                src={`https://github.com/${mensagem.de}.png`}
                             />
                                    
-                            <Text tag="strong">{mensagem.de}            
+                            <Text tag="strong">
+                                {mensagem.de}            
                             </Text>
 
                             <Text
