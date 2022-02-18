@@ -4,6 +4,8 @@ import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
 import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/router';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 
 //se não tiver instalado, dar npm install @supabase/supabase-js no terminal
@@ -11,12 +13,21 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const SUPABASE_URL = 'https://urfjzzvrlcqnygxuuoha.supabase.co';
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
-
+function escutaMensagensEmTempoReal(adicionaMensagem) {
+    return supabaseClient
+      .from('mensagens')
+      .on('INSERT', respostaLive => {
+        adicionaMensagem(respostaLive.new);
+      })
+      .subscribe();
+}
 
 export default function ChatPage() {
+
+    const roteamento = useRouter();
+    const usuarioLogado = roteamento.query.username;
     const [mensagem, setMensagem] = React.useState('');
-    const [listaDeMensagens, setListaDeMensagens] = React.useState([]); 
+    const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
     
     
     //lidar com coisas que fogem do fluxo padrão, ou seja, execução. um efeito colateral, um extra. se o dado precisa vir de um servidor externo, precisa carregar mais, é fora desse fluxo.
@@ -26,16 +37,34 @@ export default function ChatPage() {
             .select('*')
             .order('id', { ascending: false})
             .then(({ data }) => {
-                console.log('Dados da consulta:', data);
+                //console.log('Dados da consulta:', data);
                 setListaDeMensagens(data);
             });
+
+        const subscription = escutaMensagensEmTempoReal((novaMensagem) => {
+            console.log('Nova mensagem:', novaMensagem);
+            console.log('listaDeMensagens:', listaDeMensagens);
+
+        setListaDeMensagens((valorAtualDaLista) => {
+            console.log('valorAtualDaLista:', valorAtualDaLista);
+            return [
+                novaMensagem,
+                ...valorAtualDaLista,
+                ]
+            });
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        }
+
     }, []); //se a lista de mensagens mudar, observe essas mudanças e rode de novo. ou seja, a cada ENTER, é atualizado
 
 
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
             //id: listaDeMensagens.length + 1,
-            de: 'biancviana',
+            de: usuarioLogado,
             texto: novaMensagem,
         };
 
@@ -45,11 +74,8 @@ export default function ChatPage() {
                 mensagem
             ])
             .then(({ data }) => {
+                console.log('Criando mensagem: ', data);
                 // espalhar -> eu pego todos os itens que já estão dentro da lista e espalho todos dentro da lista nova (setListaDeMensagens)
-                setListaDeMensagens([
-                    data[0],
-                    ...listaDeMensagens,
-                ]);
             });
 
         setMensagem('');
@@ -133,6 +159,14 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[100],
                             }}
                         />
+                        {/* CallBack */}
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
+                                //console.log('Salva esse sticker no banco', sticker);
+                                handleNovaMensagem(':sticker: ' + sticker);
+                            }} 
+                         
+                         />
                     </Box>
                 </Box>
             </Box>
@@ -231,7 +265,22 @@ function MessageList(props) {
                                 {new Date().toLocaleDateString()}
                             </Text>
                         </Box>
-                        {mensagem.texto}
+                        { /* [Declarativo] */ }
+                        {/* Condicional: {mensagem.texto.startsWith('sticker:').toString()} */}
+                        {mensagem.texto.startsWith(':sticker:')
+                        ? (
+                            <Image 
+                            src={mensagem.texto.replace(':sticker:', '')}
+                            styleSheet={{
+                            maxHeight: '150px'
+                            }}
+                        
+                        />
+                        )
+                        : (
+                            mensagem.texto
+                        )}
+
                     </Text>
                 );
             })}

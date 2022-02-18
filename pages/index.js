@@ -80,11 +80,14 @@ export default function PaginaInicial() {
                 
                 //"previna o carregamento, o default". Assim, temos controle de como que faz para ir para uma próxima página.
                 infosdoEvento.preventDefault(); 
-                console.log('Alguém submeteu o form');                
-                //Roteamento de páginas, o Next tem o recurso certo para fazer troca de páginas
-                roteamento.push('/chat');
-                
-                // window.location.href = "/chat" -jeito tradicional, com reload/refresh
+                console.log('Alguém submeteu o form');
+
+                //Roteamento de páginas, o Next tem o recurso certo para fazer troca de páginas.
+                //roteamento.push('/chat');
+                  // window.location.href = "/chat" -jeito tradicional, com reload/refresh
+
+                //Aqui, quando clicarmos para mudar de página, o valor username=${username} vai estar na URL, com o devido usuário                
+                roteamento.push(`/chat?username=${username}`); // ou roteamento.push('/chat?username=' + username');
                 
               }}
               styleSheet={{
@@ -137,7 +140,7 @@ export default function PaginaInicial() {
                 type='submit'
                 label='Entrar'
                 fullWidth
-                disabled={username < 3}
+                disabled={username < 1}
                 buttonColors={{
                   contrastColor: appConfig.theme.colors.neutrals["000"],
                   mainColor: appConfig.theme.colors.primary['111'],
